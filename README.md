@@ -16,7 +16,9 @@
 
 ###
 
-![https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4?si=T0Rt6u1lSNSiy4jUM65Yhw](img/spotify-logo-spotify-social-media-icon-free-png.webp){:height="50" width="50"}
+<a href="https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4?si=T0Rt6u1lSNSiy4jUM65Yhw">
+  <img src="img/spotify-logo-spotify-social-media-icon-free-png.webp" height="30" width="30" alt="spotify logo" />
+</a>
 
 ####
 
@@ -28,10 +30,17 @@
 
 ###
 
+<div align="center">
+  <img src="https://streak-stats.demolab.com?user=MuhammadAbdulFarid&locale=en&mode=daily&theme=dracula&hide_border=false&border_radius=5&order=3" height="150" alt="streak graph"  />
+  <img src="https://github-profile-trophy.vercel.app?username=MuhammadAbdulFarid&theme=dracula&column=-1&row=1&margin-w=8&margin-h=8&no-bg=false&no-frame=false&order=4" height="150" alt="trophy graph"  />
+</div>
+
+###
+
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/maurodesouza/maurodesouza/output/pacman-contribution-graph-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/maurodesouza/maurodesouza/output/pacman-contribution-graph.svg">
-  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/maurodesouza/maurodesouza/output/pacman-contribution-graph.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
+  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
 </picture>
 
 ###
