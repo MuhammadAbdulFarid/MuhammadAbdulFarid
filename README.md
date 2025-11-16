@@ -1,4 +1,6 @@
-## Hi there 👋
+## hello world! I'm Muhammad Abdul Farid
+
+![I can use](<img/download%20(1).jpg>)
 
 <!--
 **MuhammadAbdulFarid/MuhammadAbdulFarid** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
@@ -14,3 +16,8 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
+
+- 🌱 I’m currently learning _WEB Development_
+  😁😁😁😁😁
+
+![HI GUYS](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDFuY2RhZ3Q3d295cmhkM3VuYmx4a3JsMTVmcGYwenA0dDN3bTAycSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ASd0Ukj0y3qMM/giphy.gif)
