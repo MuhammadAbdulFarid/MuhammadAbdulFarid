@@ -1,7 +1,7 @@
 ![hi](img/github-header-banner.png)
 <img align="right" height="150" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmtnMHFoZzN2YmliZHg5NWV5ejdnejNwNjc2ODE2emxpNnJ2Y2lmbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7s94HNIqC4SkxALH4O/giphy.gif"  />
 
-#### my skill
+####
 
 <div align="left">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="30" alt="javascript logo"  />
@@ -16,7 +16,7 @@
 
 ###
 
-![https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4?si=T0Rt6u1lSNSiy4jUM65Yhw](img/spotify-logo-spotify-social-media-icon-free-png.webp)
+![https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4?si=T0Rt6u1lSNSiy4jUM65Yhw](img/spotify-logo-spotify-social-media-icon-free-png.webp){:height="50" width="50"}
 
 ####
 
