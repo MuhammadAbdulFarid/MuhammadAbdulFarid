@@ -38,9 +38,9 @@
 ####
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
-  <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
-</picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
+    <img alt="Grafik Kontribusi GitHub Muhammad Abdul Farid (Tema Pac-Man)" src="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
+  </picture>
 
 ###
