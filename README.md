@@ -1,46 +1,61 @@
-![hi](img/github-header-banner.png)
-<img align="right" height="150" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmtnMHFoZzN2YmliZHg5NWV5ejdnejNwNjc2ODE2emxpNnJ2Y2lmbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7s94HNIqC4SkxALH4O/giphy.gif"  />
-
-####
-
-<div align="left">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="30" alt="javascript logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="30" alt="html5 logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="30" alt="css3 logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" height="30" alt="python logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" height="30" alt="php logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" height="30" alt="vscode logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" height="30" alt="nodejs logo"  />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" height="30" alt="java logo"  />
+<div align="center">
+  <img src="img/github-header-banner.png" width="100%" alt="Header Banner" />
 </div>
 
-###
+<img align="right" height="150" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmtnMHFoZzN2YmliZHg5NWV5ejdnejNwNjc2ODE2emxpNnJ2Y2lmbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7s94HNIqC4SkxALH4O/giphy.gif" />
 
-<a href="https://open.spotify.com/artist/2DaxqgrOhkeH0fpeiQq2f4?si=T0Rt6u1lSNSiy4jUM65Yhw">
-  <img src="img/spotify-logo-spotify-social-media-icon-free-png.webp" height="30" width="30" alt="spotify logo" />
+# 🚀 Hello, I'm Muhammad Abdul Farid
+### Full-Stack Enthusiast & Cybersecurity Student
+
+---
+
+### 🛠️ Tech Stack & Tools
+<div align="left">
+  <img src="https://skillicons.dev/icons?i=js,html,css,py,php,vscode,nodejs,java" />
+</div>
+
+### 🎵 Listening on Spotify
+<a href="https://open.spotify.com/user/YOUR_SPOTIFY_ID_HERE">
+  <img src="https://img.shields.io/badge/Spotify-1ED760?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify" />
 </a>
 
-####
+---
 
+### 🌐 Connect with Me
 <div align="left">
-  <img src="https://img.shields.io/static/v1?message=Youtube&logo=youtube&label=&color=FF0000&logoColor=white&labelColor=&style=for-the-badge" height="35" alt="https://www.tiktok.com/@is_it_farid?_r=1&_t=ZS-91S5myHgBLE"  />
-  <img src="https://img.shields.io/static/v1?message=Instagram&logo=instagram&label=&color=E4405F&logoColor=white&labelColor=&style=for-the-badge" height="35" alt="https://www.instagram.com/oi_parid?igsh=MW50cjk3NDE1MjlycA=="  />
-  <img src="https://img.shields.io/static/v1?message=Gmail&logo=gmail&label=&color=D14836&logoColor=white&labelColor=&style=for-the-badge" height="35" alt="faridlmp855@gmail.com"  />
+  <a href="https://www.youtube.com/@YOUR_YOUTUBE_HANDLE">
+    <img src="https://img.shields.io/badge/Youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Youtube" />
+  </a>
+  <a href="https://www.instagram.com/oi_parid">
+    <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+  </a>
+  <a href="https://www.tiktok.com/@is_it_farid">
+    <img src="https://img.shields.io/badge/TikTok-000000?style=for-the-badge&logo=tiktok&logoColor=white" alt="TikTok" />
+  </a>
+  <a href="mailto:faridlmp855@gmail.com">
+    <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
 </div>
 
-###
+---
 
+### 📊 GitHub Statistics
 <div align="center">
-  <img src="https://streak-stats.demolab.com?user=MuhammadAbdulFarid&locale=en&mode=daily&theme=dracula&hide_border=false&border_radius=5&order=3" height="150" alt="streak graph"  />
-  <img src="https://github-profile-trophy.vercel.app?username=MuhammadAbdulFarid&theme=dracula&column=-1&row=1&margin-w=8&margin-h=8&no-bg=false&no-frame=false&order=4" height="150" alt="trophy graph"  />
+  <img src="https://github-profile-trophy.vercel.app?username=MuhammadAbdulFarid&theme=dracula&column=7&row=1&margin-w=8&margin-h=8&no-bg=false&no-frame=false" width="100%" alt="trophies" />
+  <br>
+  <img src="https://streak-stats.demolab.com?user=MuhammadAbdulFarid&theme=dracula&hide_border=false" alt="streak graph" />
 </div>
 
-####
-
-<picture>
+### 🕹️ Contribution Activity
+<div align="center">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
-    <img alt="Grafik Kontribusi GitHub Muhammad Abdul Farid (Tema Pac-Man)" src="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg">
+    <img alt="Pac-man Contribution Graph" src="https://raw.githubusercontent.com/MuhammadAbdulFarid/MuhammadAbdulFarid/output/pacman-contribution-graph.svg" width="100%">
   </picture>
+</div>
 
-###
+---
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=MuhammadAbdulFarid&label=Profile%20Views&color=0e75b6&style=flat" alt="Views" />
+</p>
