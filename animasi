@@ -1,0 +1,1102 @@
+"""
+MENDUNG DI DOMPET CUNAM - Episode 1
+Animasi bergaya Papadhot / Dhot Design
+
+Kontrol:
+  → / SPACE  = Maju ke beat selanjutnya
+  ←          = Mundur ke beat sebelumnya
+  ESC        = Keluar
+"""
+
+import sys, os, math
+
+try:
+    import pygame
+except ImportError:
+    os.system(f'"{sys.executable}" -m pip install pygame')
+    import pygame
+
+pygame.init()
+
+# ════════════════════════════════════════════════════════════════
+#  KONFIGURASI
+# ════════════════════════════════════════════════════════════════
+W, H = 960, 640
+screen = pygame.display.set_mode((W, H))
+pygame.display.set_caption("Mendung di Dompet Cunam - Episode 1")
+clock = pygame.time.Clock()
+FPS = 30
+
+# --- Warna ---
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (128, 128, 128)
+DGRAY = (64, 64, 64)
+LGRAY = (200, 200, 200)
+SKIN = (255, 218, 185)
+BROWN = (139, 69, 19)
+DBROWN = (80, 50, 20)
+GREEN = (34, 139, 34)
+DGREEN = (15, 80, 15)
+LGREEN = (100, 200, 100)
+OLIVE = (85, 107, 47)
+BLUE = (70, 130, 180)
+LBLUE = (135, 206, 250)
+ORANGE = (255, 140, 0)
+RED = (220, 50, 50)
+YELLOW = (255, 255, 0)
+GOLD = (255, 215, 0)
+KHAKI = (170, 160, 80)
+CARGO = (100, 110, 70)
+PINK = (255, 182, 193)
+CREAM = (255, 250, 230)
+TEAL = (0, 128, 128)
+PURPLE = (130, 80, 160)
+WALL = (240, 235, 220)
+FLOOR = (180, 140, 100)
+
+# --- Font (fallback-safe) ---
+FN = None
+for fname in ["Segoe UI", "Arial", "Tahoma", None]:
+    try:
+        _t = pygame.font.SysFont(fname, 12)
+        FN = fname
+        break
+    except Exception:
+        continue
+
+f_dlg = pygame.font.SysFont(FN, 18)
+f_spk = pygame.font.SysFont(FN, 16, bold=True)
+f_nar = pygame.font.SysFont(FN, 17, italic=True)
+f_scn = pygame.font.SysFont(FN, 22, bold=True)
+f_dsc = pygame.font.SysFont(FN, 15, italic=True)
+f_ui = pygame.font.SysFont(FN, 13)
+f_big = pygame.font.SysFont(FN, 36, bold=True)
+f_brd = pygame.font.SysFont(FN, 18, bold=True)
+f_sfx = pygame.font.SysFont(FN, 26, bold=True)
+f_sm = pygame.font.SysFont(FN, 14)
+f_ttl = pygame.font.SysFont(FN, 44, bold=True)
+f_sub = pygame.font.SysFont(FN, 20)
+f_debt = pygame.font.SysFont(FN, 24, bold=True)
+
+
+# ════════════════════════════════════════════════════════════════
+#  HELPERS
+# ════════════════════════════════════════════════════════════════
+def wrap(text, font, mw):
+    words = text.split(' ')
+    lines, c = [], ""
+    for w in words:
+        t = (c + " " + w) if c else w
+        if font.size(t)[0] <= mw:
+            c = t
+        else:
+            if c:
+                lines.append(c)
+            c = w
+    if c:
+        lines.append(c)
+    return lines
+
+
+def lc(c1, c2, t):
+    """Lerp warna."""
+    return tuple(int(c1[i] + (c2[i] - c1[i]) * max(0, min(1, t))) for i in range(3))
+
+
+def grad_v(surf, rect, c1, c2):
+    """Gradient vertikal."""
+    x, y, w, h = rect
+    for r in range(h):
+        t = r / max(h - 1, 1)
+        pygame.draw.line(surf, lc(c1, c2, t), (x, y + r), (x + w, y + r))
+
+
+# ════════════════════════════════════════════════════════════════
+#  BACKGROUND FUNCTIONS
+# ════════════════════════════════════════════════════════════════
+def bg_forest(surf, frame):
+    """Hutan berkabut sore hari."""
+    grad_v(surf, (0, 0, W, H), (60, 80, 60), (20, 40, 20))
+    # Tanah
+    pygame.draw.rect(surf, DBROWN, (0, 450, W, 200))
+    pygame.draw.rect(surf, (30, 60, 20), (0, 440, W, 15))
+    # Pohon-pohon
+    trees = [(80, 380, 70), (200, 360, 80), (350, 370, 75), (550, 355, 85),
+             (700, 365, 70), (850, 375, 75), (150, 390, 60), (450, 380, 65),
+             (650, 370, 72), (780, 385, 68)]
+    for tx, ty, th in trees:
+        pygame.draw.rect(surf, BROWN, (tx - 6, ty, 12, 455 - ty))
+        for i in range(3):
+            pw = th - i * 15
+            pygame.draw.ellipse(surf, DGREEN, (tx - pw // 2, ty - 30 - i * 18, pw, 38))
+        pygame.draw.ellipse(surf, (20, 70, 20), (tx - th // 2 + 5, ty - 25, th - 10, 30))
+    # Kabut animasi
+    for i in range(8):
+        fx = int((i * 150 + frame * 0.3 * (i % 3 + 1)) % (W + 200) - 100)
+        fy = int(300 + i * 20 + math.sin(frame * 0.02 + i) * 10)
+        fw, fh = 200 + i * 30, 30 + i * 5
+        fog = pygame.Surface((fw, fh), pygame.SRCALPHA)
+        fog.fill((220, 230, 220, 35 + i * 5))
+        surf.blit(fog, (fx, fy))
+
+
+def bg_room(surf, debt_text="Rp. 200.000.000"):
+    """Kamar Cunam - interior."""
+    grad_v(surf, (0, 0, W, H), WALL, (220, 215, 200))
+    pygame.draw.rect(surf, FLOOR, (0, 430, W, 210))
+    pygame.draw.line(surf, DBROWN, (0, 430), (W, 430), 3)
+    # Whiteboard
+    bx, by, bw, bh = 550, 80, 330, 180
+    pygame.draw.rect(surf, WHITE, (bx, by, bw, bh))
+    pygame.draw.rect(surf, GRAY, (bx, by, bw, bh), 3)
+    t1 = f_brd.render("TARGET LUNAS UTANG KELUARGA:", True, RED)
+    surf.blit(t1, (bx + 15, by + 25))
+    t2 = f_debt.render(debt_text, True, RED)
+    surf.blit(t2, (bx + 15, by + 60))
+    # Kasur
+    pygame.draw.rect(surf, (100, 80, 60), (50, 360, 180, 70))
+    pygame.draw.rect(surf, (150, 130, 100), (50, 350, 180, 15))
+    pygame.draw.rect(surf, LGRAY, (55, 365, 55, 40))
+    # Meja kecil
+    pygame.draw.rect(surf, BROWN, (700, 360, 120, 5))
+    pygame.draw.rect(surf, BROWN, (710, 365, 5, 65))
+    pygame.draw.rect(surf, BROWN, (810, 365, 5, 65))
+    # Kipas modif tamiya (di langit-langit)
+    pygame.draw.line(surf, GRAY, (400, 0), (400, 30), 2)
+    pygame.draw.circle(surf, DGRAY, (400, 35), 8)
+    angle_base = pygame.time.get_ticks() * 0.3
+    for a in range(3):
+        ang = a * 120 + angle_base
+        ex = 400 + int(25 * math.cos(math.radians(ang)))
+        ey = 35 + int(25 * math.sin(math.radians(ang)))
+        pygame.draw.line(surf, GRAY, (400, 35), (ex, ey), 3)
+
+
+def bg_warkop(surf):
+    """Interior warkop."""
+    grad_v(surf, (0, 0, W, H), (180, 160, 120), (140, 120, 80))
+    pygame.draw.rect(surf, (120, 100, 70), (0, 440, W, 200))
+    # Counter
+    pygame.draw.rect(surf, BROWN, (0, 360, 380, 15))
+    pygame.draw.rect(surf, DBROWN, (10, 375, 8, 65))
+    pygame.draw.rect(surf, DBROWN, (362, 375, 8, 65))
+    # Papan menu
+    pygame.draw.rect(surf, (40, 40, 40), (500, 50, 200, 150))
+    pygame.draw.rect(surf, GOLD, (500, 50, 200, 150), 2)
+    menu = ["Kopi Hitam  5k", "Teh Manis   4k", "Indomie     8k"]
+    for i, m in enumerate(menu):
+        surf.blit(f_sm.render(m, True, WHITE), (520, 70 + i * 30))
+    # Pelanggan siluet
+    for cx in [150, 300]:
+        pygame.draw.circle(surf, DGRAY, (cx, 320), 15)
+        pygame.draw.line(surf, DGRAY, (cx, 335), (cx, 375), 3)
+
+
+def bg_road(surf):
+    """Jalan raya - scene kurir."""
+    grad_v(surf, (0, 0, W, H // 2), (135, 206, 235), (180, 220, 240))
+    pygame.draw.rect(surf, (80, 80, 80), (0, H // 2, W, H // 2))
+    pygame.draw.rect(surf, YELLOW, (0, H // 2 + 90, W, 4))
+    pygame.draw.rect(surf, LGRAY, (0, 440, W, 200))
+    for i, bx in enumerate([50, 200, 400, 600, 750]):
+        bh = 120 + i * 15
+        pygame.draw.rect(surf, lc(LGRAY, GRAY, i / 5), (bx, H // 2 - bh, 100, bh))
+        for wy in range(3):
+            for wx in range(2):
+                pygame.draw.rect(surf, LBLUE, (bx + 15 + wx * 50, H // 2 - bh + 20 + wy * 35, 20, 15))
+
+
+def bg_minimarket(surf):
+    """Depan minimarket sore hari."""
+    grad_v(surf, (0, 0, W, 300), (255, 150, 80), (255, 200, 120))
+    grad_v(surf, (0, 300, W, 340), (255, 200, 120), (200, 180, 160))
+    pygame.draw.rect(surf, (180, 170, 160), (0, 410, W, 230))
+    pygame.draw.rect(surf, LGRAY, (0, 400, W, 15))
+    # Bangunan
+    bx, by, bw, bh = 300, 100, 400, 310
+    pygame.draw.rect(surf, (240, 240, 240), (bx, by, bw, bh))
+    pygame.draw.rect(surf, RED, (bx, by, bw, 40))
+    sgn = f_scn.render("MINIMARKET", True, WHITE)
+    surf.blit(sgn, (bx + bw // 2 - sgn.get_width() // 2, by + 8))
+    # Pintu
+    pygame.draw.rect(surf, (100, 180, 220), (bx + bw // 2 - 30, by + 120, 60, 190))
+    pygame.draw.rect(surf, GRAY, (bx + bw // 2 - 30, by + 120, 60, 190), 2)
+    # Jendela
+    for wx in [bx + 30, bx + bw - 90]:
+        pygame.draw.rect(surf, (150, 200, 230), (wx, by + 80, 60, 60))
+        pygame.draw.rect(surf, GRAY, (wx, by + 80, 60, 60), 2)
+    # Kursi
+    pygame.draw.rect(surf, BROWN, (160, 385, 80, 5))
+    pygame.draw.rect(surf, BROWN, (165, 390, 5, 20))
+    pygame.draw.rect(surf, BROWN, (230, 390, 5, 20))
+
+
+def bg_sunset_cliff(surf, frame):
+    """Pemandangan sunset dari tebing."""
+    t = (math.sin(frame * 0.01) + 1) / 2
+    grad_v(surf, (0, 0, W, 200), lc((80, 20, 100), (100, 30, 120), t),
+           lc((255, 100, 50), (255, 120, 60), t))
+    grad_v(surf, (0, 200, W, 200), lc((255, 100, 50), (255, 120, 60), t),
+           lc((255, 180, 80), (255, 200, 100), t))
+    # Matahari
+    sun_y = 180 + int(math.sin(frame * 0.005) * 10)
+    glow = pygame.Surface((200, 200), pygame.SRCALPHA)
+    pygame.draw.circle(glow, (255, 200, 50, 30), (100, 100), 100)
+    surf.blit(glow, (W // 2 - 100, sun_y - 100))
+    pygame.draw.circle(surf, (255, 220, 100), (W // 2, sun_y), 45)
+    pygame.draw.circle(surf, (255, 240, 150), (W // 2, sun_y), 38)
+    # Siluet kota
+    blds = [(50, 80), (100, 120), (160, 90), (220, 140), (290, 100),
+            (340, 130), (400, 110), (460, 150), (530, 95), (590, 120),
+            (640, 85), (700, 130), (760, 100), (820, 110), (880, 90)]
+    for bx, bh in blds:
+        pygame.draw.rect(surf, (30, 20, 40), (bx, 400 - bh, 50, bh))
+        for wy in range(bh // 20):
+            for wx2 in range(2):
+                if (bx + wx2 + wy) % 3 > 0:
+                    pygame.draw.rect(surf, (255, 220, 100), (bx + 10 + wx2 * 20, 400 - bh + 10 + wy * 20, 8, 8))
+    # Tebing
+    pts = [(0, 400), (580, 400), (640, 430), (700, 405), (W, 400), (W, H), (0, H)]
+    pygame.draw.polygon(surf, (50, 40, 30), pts)
+    for gx in range(0, 620, 15):
+        pygame.draw.line(surf, DGREEN, (gx, 400), (gx + 5, 390), 2)
+
+
+def bg_black(surf):
+    surf.fill(BLACK)
+
+
+def bg_room_night(surf, debt_text="Rp. 199.985.000"):
+    """Kamar Cunam malam hari."""
+    grad_v(surf, (0, 0, W, H), (60, 55, 70), (40, 35, 50))
+    pygame.draw.rect(surf, (60, 45, 35), (0, 430, W, 210))
+    pygame.draw.line(surf, (50, 35, 25), (0, 430), (W, 430), 3)
+    # Whiteboard (dimly lit)
+    bx, by, bw, bh = 550, 80, 330, 180
+    pygame.draw.rect(surf, (220, 220, 220), (bx, by, bw, bh))
+    pygame.draw.rect(surf, GRAY, (bx, by, bw, bh), 3)
+    t1 = f_brd.render("TARGET LUNAS UTANG KELUARGA:", True, RED)
+    surf.blit(t1, (bx + 15, by + 25))
+    t2 = f_debt.render(debt_text, True, RED)
+    surf.blit(t2, (bx + 15, by + 60))
+    # Lampu meja kecil (efek cahaya)
+    pygame.draw.circle(surf, (80, 75, 40), (760, 355), 60)
+    pygame.draw.rect(surf, BROWN, (700, 360, 120, 5))
+    pygame.draw.rect(surf, BROWN, (710, 365, 5, 65))
+    pygame.draw.rect(surf, BROWN, (810, 365, 5, 65))
+    # Lampu kecil
+    pygame.draw.rect(surf, YELLOW, (750, 340, 15, 20))
+    pygame.draw.circle(surf, (255, 255, 200, 50), (757, 340), 30)
+
+
+# ════════════════════════════════════════════════════════════════
+#  CHARACTER DRAWING
+# ════════════════════════════════════════════════════════════════
+def draw_cunam(surf, x, y, pose="standing", facing=1, mouth="flat", eyes="normal", frame=0):
+    """Gambar Cunam. x,y = posisi kaki di tanah."""
+    bob = math.sin(frame * 0.08) * 2
+    y = int(y + bob)
+    f = facing
+    hr = 20
+    sw = 3
+
+    # --- Hitung posisi badan berdasarkan pose ---
+    if pose in ("squatting", "counting"):
+        leg_h, body_h = 18, 28
+    elif pose in ("sitting", "sitting_cliff"):
+        leg_h, body_h = 12, 35
+    elif pose == "falling":
+        leg_h, body_h = 30, 30
+    else:
+        leg_h, body_h = 38, 38
+
+    hip = (x, y - leg_h)
+    shoulder = (x, y - leg_h - body_h)
+    head_c = (x + 2 * f, shoulder[1] - hr)
+
+    # --- Posisi kaki ---
+    lk = rk = None  # knee (hanya untuk squatting)
+    poses_feet = {
+        "standing":      ((x - 12 * f, y), (x + 8 * f, y)),
+        "hands_pocket":  ((x - 12 * f, y), (x + 8 * f, y)),
+        "squatting":     ((x - 18 * f, y), (x + 8 * f, y)),
+        "running":       ((x - 22 * f, y), (x + 18 * f, y - 12)),
+        "victory":       ((x - 14 * f, y), (x + 14 * f, y)),
+        "sitting":       ((x + 15 * f, y + 5), (x + 22 * f, y + 8)),
+        "sitting_cliff": ((x + 5 * f, y + 22), (x + 18 * f, y + 22)),
+        "helping":       ((x - 10 * f, y), (x + 12 * f, y)),
+        "scared":        ((x - 5 * f, y), (x + 15 * f, y)),
+        "waiter":        ((x - 10 * f, y), (x + 10 * f, y)),
+        "pushing":       ((x - 18 * f, y), (x + 10 * f, y)),
+        "counting":      ((x - 10 * f, y), (x + 10 * f, y)),
+        "photo":         ((x - 10 * f, y), (x + 10 * f, y)),
+        "falling":       ((x - 20 * f, y - 8), (x + 15 * f, y + 5)),
+        "chasing":       ((x - 25 * f, y), (x + 20 * f, y - 15)),
+    }
+    lf, rf = poses_feet.get(pose, ((x - 10, y), (x + 10, y)))
+    if pose == "squatting":
+        lk = (x - 22 * f, y - 20)
+        rk = (x + 12 * f, y - 20)
+
+    # --- Gambar kaki ---
+    if pose == "squatting" and lk and rk:
+        pygame.draw.line(surf, CARGO, hip, lk, sw + 3)
+        pygame.draw.line(surf, BLACK, lk, lf, sw)
+        pygame.draw.line(surf, CARGO, hip, rk, sw + 3)
+        pygame.draw.line(surf, BLACK, rk, rf, sw)
+    else:
+        for foot in [lf, rf]:
+            mid = ((hip[0] + foot[0]) // 2, (hip[1] + foot[1]) // 2)
+            pygame.draw.line(surf, BLACK, hip, foot, sw)
+            pygame.draw.line(surf, CARGO, hip, mid, sw + 3)
+    # Sepatu
+    for foot in [lf, rf]:
+        pygame.draw.circle(surf, (50, 50, 50), (int(foot[0]), int(foot[1])), 5)
+
+    # --- Badan (kaos hitam) ---
+    pygame.draw.line(surf, BLACK, shoulder, hip, sw + 5)
+    pygame.draw.line(surf, (30, 30, 30), shoulder, hip, sw + 3)
+
+    # --- Posisi tangan ---
+    ls = (x - 4 * f, shoulder[1] + 8)
+    rs = (x + 4 * f, shoulder[1] + 8)
+    poses_hands = {
+        "standing":      ((x - 22 * f, shoulder[1] + 32), (x + 22 * f, shoulder[1] + 32)),
+        "hands_pocket":  ((x - 10 * f, hip[1] - 2), (x + 10 * f, hip[1] - 2)),
+        "squatting":     ((x - 15 * f, hip[1] + 8), (x + 15 * f, hip[1] + 8)),
+        "running":       ((x + 18 * f, shoulder[1] - 5), (x - 12 * f, shoulder[1] + 18)),
+        "victory":       ((x - 28 * f, shoulder[1] - 28), (x + 28 * f, shoulder[1] - 28)),
+        "sitting":       ((x - 12 * f, shoulder[1] + 22), (x + 18 * f, shoulder[1] + 25)),
+        "sitting_cliff": ((x - 12 * f, shoulder[1] + 28), (x + 10 * f, shoulder[1] + 22)),
+        "helping":       ((x + 28 * f, shoulder[1] + 12), (x + 32 * f, shoulder[1] + 8)),
+        "scared":        ((x - 28 * f, shoulder[1] - 12), (x + 28 * f, shoulder[1] - 12)),
+        "waiter":        ((x - 18 * f, shoulder[1] + 22), (x + 28 * f, shoulder[1] - 8)),
+        "pushing":       ((x + 35 * f, shoulder[1] + 18), (x + 35 * f, shoulder[1] + 12)),
+        "counting":      ((x + 8 * f, shoulder[1] + 28), (x + 18 * f, shoulder[1] + 28)),
+        "photo":         ((x + 18 * f, shoulder[1] + 12), (x + 22 * f, shoulder[1] + 8)),
+        "falling":       ((x - 18 * f, shoulder[1] - 18), (x + 28 * f, shoulder[1] + 8)),
+        "chasing":       ((x + 22 * f, shoulder[1] - 8), (x - 15 * f, shoulder[1] + 20)),
+    }
+    lh, rh = poses_hands.get(pose, ((x - 20 * f, shoulder[1] + 30), (x + 20 * f, shoulder[1] + 30)))
+
+    # Gambar lengan
+    pygame.draw.line(surf, BLACK, ls, lh, sw)
+    pygame.draw.line(surf, BLACK, rs, rh, sw)
+    pygame.draw.circle(surf, SKIN, (int(lh[0]), int(lh[1])), 4)
+    pygame.draw.circle(surf, SKIN, (int(rh[0]), int(rh[1])), 4)
+
+    # --- Kepala ---
+    hx, hy = int(head_c[0]), int(head_c[1])
+    pygame.draw.circle(surf, SKIN, (hx, hy), hr)
+    pygame.draw.circle(surf, BLACK, (hx, hy), hr, 2)
+
+    # Rambut ikal (Cunam)
+    hair = [(-14, -8), (-9, -14), (-3, -16), (3, -16), (9, -14), (14, -8),
+            (-11, -12), (-5, -15), (5, -15), (11, -12), (0, -17)]
+    for dx, dy in hair:
+        pygame.draw.circle(surf, BLACK, (hx + dx, hy + dy), 5)
+
+    # Mata
+    ex1, ex2, ey = hx - 7 * f, hx + 7 * f, hy - 2
+    if eyes == "normal":
+        pygame.draw.circle(surf, BLACK, (ex1, ey), 3)
+        pygame.draw.circle(surf, BLACK, (ex2, ey), 3)
+    elif eyes == "wide":
+        for ex in [ex1, ex2]:
+            pygame.draw.circle(surf, WHITE, (ex, ey), 5)
+            pygame.draw.circle(surf, BLACK, (ex, ey), 5, 2)
+            pygame.draw.circle(surf, BLACK, (ex, ey), 2)
+    elif eyes == "closed":
+        pygame.draw.line(surf, BLACK, (ex1 - 3, ey), (ex1 + 3, ey), 2)
+        pygame.draw.line(surf, BLACK, (ex2 - 3, ey), (ex2 + 3, ey), 2)
+    elif eyes == "sparkle":
+        for ex in [ex1, ex2]:
+            pygame.draw.circle(surf, BLACK, (ex, ey), 4)
+            pygame.draw.circle(surf, WHITE, (ex - 1, ey - 1), 1)
+
+    # Mulut
+    my = hy + 8
+    mouths = {
+        "flat": lambda: pygame.draw.line(surf, BLACK, (hx - 5, my), (hx + 5, my), 2),
+        "smile": lambda: pygame.draw.arc(surf, BLACK, (hx - 6, my - 4, 12, 10), 3.14, 6.28, 2),
+        "big_smile": lambda: pygame.draw.arc(surf, BLACK, (hx - 8, my - 5, 16, 12), 3.14, 6.28, 2),
+        "surprise": lambda: pygame.draw.circle(surf, BLACK, (hx, my + 2), 5, 2),
+        "panic": lambda: pygame.draw.ellipse(surf, BLACK, (hx - 6, my - 2, 12, 10), 2),
+        "talking": lambda: pygame.draw.ellipse(surf, BLACK, (hx - 5, my, 10, 6)),
+        "frown": lambda: pygame.draw.arc(surf, BLACK, (hx - 6, my + 2, 12, 10), 0, 3.14, 2),
+    }
+    mouths.get(mouth, mouths["flat"])()
+
+    # Aksesoris berdasarkan pose
+    if pose == "waiter":
+        tx, ty = int(rh[0]), int(rh[1]) - 5
+        pygame.draw.rect(surf, GRAY, (tx - 15, ty - 3, 30, 4))
+        pygame.draw.circle(surf, BROWN, (tx - 5, ty - 8), 5)
+        pygame.draw.circle(surf, BROWN, (tx + 5, ty - 8), 5)
+    elif pose == "photo":
+        px, py = int(rh[0]), int(rh[1])
+        pygame.draw.rect(surf, DGRAY, (px - 5, py - 8, 10, 16))
+        pygame.draw.rect(surf, LBLUE, (px - 4, py - 6, 8, 12))
+    elif pose == "victory":
+        for hnd in [lh, rh]:
+            hx2, hy2 = int(hnd[0]), int(hnd[1])
+            pygame.draw.line(surf, SKIN, (hx2 - 3, hy2 - 8), (hx2, hy2), 2)
+            pygame.draw.line(surf, SKIN, (hx2 + 3, hy2 - 8), (hx2, hy2), 2)
+
+
+def draw_rara(surf, x, y, pose="standing", facing=1, mouth="smile", frame=0):
+    """Gambar Rara. x,y = posisi kaki."""
+    bob = math.sin(frame * 0.08 + 1) * 2
+    y = int(y + bob)
+    f = facing
+    hr = 18
+    sw = 3
+    leg_h, body_h = 36, 36
+
+    hip = (x, y - leg_h)
+    shoulder = (x, y - leg_h - body_h)
+    head_c = (x + 2 * f, shoulder[1] - hr)
+
+    # Kaki
+    poses_feet = {
+        "standing": ((x - 8 * f, y), (x + 8 * f, y)),
+        "carrying": ((x - 10 * f, y), (x + 8 * f, y)),
+        "confused": ((x - 8 * f, y), (x + 8 * f, y)),
+    }
+    lf, rf = poses_feet.get(pose, ((x - 8, y), (x + 8, y)))
+
+    for foot in [lf, rf]:
+        pygame.draw.line(surf, BLACK, hip, foot, sw)
+    # Rok
+    skw = 25
+    pygame.draw.polygon(surf, (50, 50, 150), [
+        (hip[0] - skw // 2, hip[1]), (hip[0] + skw // 2, hip[1]),
+        (hip[0] + skw // 2 + 5, hip[1] + 22), (hip[0] - skw // 2 - 5, hip[1] + 22)])
+
+    # Badan (seragam minimarket)
+    pygame.draw.line(surf, BLACK, shoulder, hip, sw + 5)
+    pygame.draw.line(surf, TEAL, shoulder, hip, sw + 3)
+
+    # Tangan
+    ls = (x - 4 * f, shoulder[1] + 8)
+    rs = (x + 4 * f, shoulder[1] + 8)
+    poses_hands = {
+        "standing": ((x - 18 * f, shoulder[1] + 28), (x + 18 * f, shoulder[1] + 28)),
+        "carrying": ((x + 25 * f, shoulder[1] + 15), (x + 30 * f, shoulder[1] + 10)),
+        "confused": ((x - 15 * f, shoulder[1] + 5), (x + 20 * f, head_c[1] + 5)),
+    }
+    lh, rh = poses_hands.get(pose, poses_hands["standing"])
+    pygame.draw.line(surf, BLACK, ls, lh, sw)
+    pygame.draw.line(surf, BLACK, rs, rh, sw)
+    pygame.draw.circle(surf, SKIN, (int(lh[0]), int(lh[1])), 4)
+    pygame.draw.circle(surf, SKIN, (int(rh[0]), int(rh[1])), 4)
+
+    # Kardus kalau carrying
+    if pose == "carrying":
+        bx2 = int((lh[0] + rh[0]) // 2)
+        by2 = int((lh[1] + rh[1]) // 2) - 10
+        pygame.draw.rect(surf, BROWN, (bx2 - 15, by2 - 15, 30, 25))
+        pygame.draw.rect(surf, BLACK, (bx2 - 15, by2 - 15, 30, 25), 2)
+
+    # Kepala
+    hx, hy = int(head_c[0]), int(head_c[1])
+    pygame.draw.circle(surf, SKIN, (hx, hy), hr)
+    pygame.draw.circle(surf, BLACK, (hx, hy), hr, 2)
+
+    # Rambut panjang (Rara)
+    pygame.draw.ellipse(surf, (40, 30, 20), (hx - hr - 5, hy - 5, 12, 45))
+    pygame.draw.ellipse(surf, (40, 30, 20), (hx + hr - 7, hy - 5, 12, 45))
+    pygame.draw.ellipse(surf, (40, 30, 20), (hx - hr + 2, hy - hr - 5, hr * 2 - 4, 20))
+    pygame.draw.arc(surf, (40, 30, 20), (hx - 12, hy - hr - 3, 24, 15), 3.14, 6.28, 4)
+
+    # Mata
+    ex1, ex2, ey = hx - 6 * f, hx + 6 * f, hy - 2
+    for ex in [ex1, ex2]:
+        pygame.draw.circle(surf, BLACK, (ex, ey), 3)
+        pygame.draw.circle(surf, WHITE, (ex - 1, ey - 1), 1)
+    # Blush
+    pygame.draw.circle(surf, (255, 180, 180), (ex1 - 5, ey + 8), 5)
+    pygame.draw.circle(surf, (255, 180, 180), (ex2 + 5, ey + 8), 5)
+
+    # Mulut
+    my2 = hy + 8
+    if mouth == "smile":
+        pygame.draw.arc(surf, BLACK, (hx - 5, my2 - 3, 10, 8), 3.14, 6.28, 2)
+    elif mouth == "big_smile":
+        pygame.draw.arc(surf, BLACK, (hx - 7, my2 - 4, 14, 10), 3.14, 6.28, 2)
+    elif mouth == "confused":
+        pts = [(hx - 5, my2), (hx - 2, my2 - 3), (hx + 2, my2 + 3), (hx + 5, my2)]
+        pygame.draw.lines(surf, BLACK, False, pts, 2)
+
+    # Tanda tanya kalau confused
+    if pose == "confused":
+        surf.blit(f_sfx.render("?", True, BLACK), (hx + 15 * f, hy - 45))
+
+
+def draw_monkey(surf, x, y, facing=1, has_bread=False, frame=0):
+    """Gambar monyet."""
+    f = facing
+    bob = int(math.sin(frame * 0.15) * 3)
+    y += bob
+    # Badan
+    pygame.draw.ellipse(surf, (120, 80, 40), (x - 8, y - 25, 16, 20))
+    # Kepala
+    pygame.draw.circle(surf, (140, 100, 50), (x + 3 * f, y - 35), 12)
+    pygame.draw.circle(surf, (160, 120, 70), (x - 10 * f, y - 38), 6)
+    pygame.draw.circle(surf, (160, 120, 70), (x + 14 * f, y - 38), 6)
+    pygame.draw.circle(surf, BLACK, (x, y - 37), 2)
+    pygame.draw.circle(surf, BLACK, (x + 6 * f, y - 37), 2)
+    pygame.draw.arc(surf, BLACK, (x - 3, y - 32, 8, 5), 3.14, 6.28, 1)
+    # Ekor
+    for i in range(10):
+        tx = x - 15 * f + i * 3 * (-f)
+        ty = y - 15 + int(math.sin(i * 0.8 + frame * 0.1) * 5)
+        pygame.draw.circle(surf, (120, 80, 40), (int(tx), int(ty)), 2)
+    # Kaki & tangan
+    pygame.draw.line(surf, (120, 80, 40), (x - 5, y - 8), (x - 8, y), 2)
+    pygame.draw.line(surf, (120, 80, 40), (x + 5, y - 8), (x + 8, y), 2)
+    pygame.draw.line(surf, (120, 80, 40), (x - 6, y - 22), (x - 15 * f, y - 18), 2)
+    pygame.draw.line(surf, (120, 80, 40), (x + 6, y - 22), (x + 15 * f, y - 18), 2)
+    # Roti di tangan
+    if has_bread:
+        bx2 = x + 18 * f
+        pygame.draw.rect(surf, (240, 210, 150), (bx2 - 8, y - 22, 16, 8))
+        pygame.draw.rect(surf, (200, 170, 100), (bx2 - 8, y - 22, 16, 8), 1)
+
+
+def draw_motorcycle(surf, x, y):
+    """Motor sederhana."""
+    pygame.draw.circle(surf, BLACK, (x - 25, y), 15, 3)
+    pygame.draw.circle(surf, BLACK, (x + 25, y), 15, 3)
+    pygame.draw.line(surf, DGRAY, (x - 25, y), (x, y - 20), 3)
+    pygame.draw.line(surf, DGRAY, (x + 25, y), (x + 5, y - 15), 3)
+    pygame.draw.line(surf, DGRAY, (x, y - 20), (x + 5, y - 15), 3)
+    pygame.draw.rect(surf, (30, 30, 30), (x - 5, y - 25, 20, 8))
+    pygame.draw.line(surf, BLACK, (x + 5, y - 15), (x + 15, y - 28), 3)
+    pygame.draw.rect(surf, ORANGE, (x - 20, y - 30, 18, 15))
+
+
+def draw_broken_shoe(surf, x, y):
+    """Sepatu sol mangap."""
+    pygame.draw.rect(surf, (50, 50, 50), (x - 12, y - 8, 24, 10))
+    pygame.draw.rect(surf, (80, 70, 60), (x - 12, y + 2, 24, 5))
+    # Sol terbuka
+    pygame.draw.line(surf, (80, 70, 60), (x + 12, y - 2), (x + 18, y + 6), 3)
+    # Lem korea label
+    surf.blit(f_sm.render("LEM", True, RED), (x - 8, y - 20))
+
+
+def draw_bread(surf, x, y):
+    """Roti tawar."""
+    pygame.draw.rect(surf, (240, 210, 150), (x - 10, y - 6, 20, 12))
+    pygame.draw.rect(surf, (200, 170, 100), (x - 10, y - 6, 20, 12), 1)
+    pygame.draw.arc(surf, (200, 170, 100), (x - 10, y - 12, 20, 12), 0, 3.14, 1)
+
+
+# ════════════════════════════════════════════════════════════════
+#  EFFECTS
+# ════════════════════════════════════════════════════════════════
+def fx_sparkle(surf, cx, cy, frame):
+    for i in range(8):
+        angle = i * 45 + frame * 2
+        r = 40 + math.sin(frame * 0.1 + i) * 10
+        sx = cx + int(r * math.cos(math.radians(angle)))
+        sy = cy + int(r * math.sin(math.radians(angle)))
+        sz = 3 + int(math.sin(frame * 0.15 + i) * 2)
+        clr = PINK if i % 2 == 0 else YELLOW
+        pygame.draw.circle(surf, clr, (sx, sy), max(1, sz))
+        for j in range(4):
+            pa = j * 90
+            px = sx + int(5 * math.cos(math.radians(pa)))
+            py = sy + int(5 * math.sin(math.radians(pa)))
+            pygame.draw.circle(surf, PINK, (px, py), 2)
+
+
+def fx_shatter(surf, frame):
+    n = min(frame % 60, 30)
+    for i in range(12):
+        angle = i * 30 + n * 3
+        dist = n * 8
+        sx = W // 2 + int(dist * math.cos(math.radians(angle)))
+        sy = H // 2 + int(dist * math.sin(math.radians(angle)))
+        pts = [(sx, sy - 8), (sx + 5, sy), (sx, sy + 8), (sx - 5, sy)]
+        aa = max(0, 255 - n * 8)
+        col = (255, 255, 255) if aa > 128 else (200, 200, 200)
+        pygame.draw.polygon(surf, col, pts, 2)
+
+
+def fx_debt_vision(surf, text, x, y, frame):
+    alpha = int(128 + 127 * math.sin(frame * 0.1))
+    s = pygame.Surface((350, 40), pygame.SRCALPHA)
+    t = f_debt.render(text, True, (220, 50, 50, min(255, max(0, alpha))))
+    s.blit(t, (0, 0))
+    surf.blit(s, (x - 175, y))
+
+
+def fx_sfx_text(surf, text, x, y, color=YELLOW):
+    t = f_sfx.render(text, True, color)
+    surf.blit(t, (x - t.get_width() // 2, y))
+
+
+def fx_sweat(surf, x, y, frame):
+    """Keringat menetes."""
+    dy = (frame * 2) % 30
+    pygame.draw.circle(surf, LBLUE, (x, y + dy), 3)
+    pygame.draw.circle(surf, LBLUE, (x + 8, y + dy - 10), 2)
+
+
+def fx_coin_sound(surf, x, y, frame):
+    """Visual efek suara koin."""
+    for i in range(3):
+        cx2 = x + int(math.sin(frame * 0.15 + i * 2) * 12)
+        cy2 = y + i * 6
+        pygame.draw.circle(surf, GOLD, (cx2, cy2), 4)
+        pygame.draw.circle(surf, YELLOW, (cx2 + 1, cy2 - 1), 1)
+
+
+# ════════════════════════════════════════════════════════════════
+#  UI
+# ════════════════════════════════════════════════════════════════
+def ui_dialogue(surf, speaker, text, sp_color=WHITE):
+    bh, by, bx, bw = 120, H - 135, 30, W - 60
+    s = pygame.Surface((bw, bh), pygame.SRCALPHA)
+    s.fill((0, 0, 0, 200))
+    surf.blit(s, (bx, by))
+    pygame.draw.rect(surf, WHITE, (bx, by, bw, bh), 2, border_radius=6)
+    if speaker:
+        ns = f_spk.render(speaker, True, sp_color)
+        nw = ns.get_width() + 16
+        pygame.draw.rect(surf, BLACK, (bx + 8, by - 22, nw, 24), border_radius=4)
+        pygame.draw.rect(surf, sp_color, (bx + 8, by - 22, nw, 24), 2, border_radius=4)
+        surf.blit(ns, (bx + 16, by - 20))
+    lines = wrap(text, f_dlg, bw - 40)
+    for i, ln in enumerate(lines):
+        surf.blit(f_dlg.render(ln, True, WHITE), (bx + 20, by + 12 + i * 24))
+
+
+def ui_narration(surf, narrator, text, color=CREAM):
+    bh, by, bx, bw = 90, 10, 50, W - 100
+    s = pygame.Surface((bw, bh), pygame.SRCALPHA)
+    s.fill((0, 0, 20, 180))
+    surf.blit(s, (bx, by))
+    pygame.draw.rect(surf, GOLD, (bx, by, bw, bh), 2, border_radius=6)
+    if narrator:
+        surf.blit(f_spk.render(narrator, True, GOLD), (bx + 12, by + 6))
+    lines = wrap(text, f_nar, bw - 30)
+    yy = by + 28 if narrator else by + 10
+    for i, ln in enumerate(lines):
+        surf.blit(f_nar.render(ln, True, color), (bx + 15, yy + i * 22))
+
+
+def ui_scene_hdr(surf, num, desc):
+    surf.blit(f_scn.render(f"SCENE {num}", True, GOLD), (20, 5))
+    surf.blit(f_dsc.render(desc, True, LGRAY), (20, 30))
+
+
+def ui_controls(surf, idx, total):
+    bw2, bx2, by2 = 200, W // 2 - 100, H - 8
+    pygame.draw.rect(surf, DGRAY, (bx2, by2, bw2, 5), border_radius=2)
+    fw = int(bw2 * (idx + 1) / total)
+    pygame.draw.rect(surf, GOLD, (bx2, by2, fw, 5), border_radius=2)
+    surf.blit(f_ui.render("< Mundur  |  Maju >  |  ESC Keluar", True, LGRAY),
+              (W // 2 - 140, H - 22))
+    surf.blit(f_ui.render(f"{idx + 1}/{total}", True, LGRAY), (W - 55, 5))
+
+
+# ════════════════════════════════════════════════════════════════
+#  BEAT DEFINITIONS (ALUR CERITA)
+# ════════════════════════════════════════════════════════════════
+BEATS = [
+    # ── 0: TITLE SCREEN ──
+    {
+        "bg": "black", "scene": None,
+        "draw": lambda s, f: (
+            s.blit(f_ttl.render("MENDUNG DI DOMPET CUNAM", True, GOLD),
+                   (W // 2 - f_ttl.size("MENDUNG DI DOMPET CUNAM")[0] // 2, H // 2 - 60)),
+            s.blit(f_sub.render("Episode 1 - Animasi Bergaya Papadhot", True, LGRAY),
+                   (W // 2 - f_sub.size("Episode 1 - Animasi Bergaya Papadhot")[0] // 2, H // 2)),
+            s.blit(f_ui.render("Tekan → atau SPACE untuk mulai", True, WHITE),
+                   (W // 2 - 120, H // 2 + 60)),
+        ),
+    },
+
+    # ═══ SCENE 1: HUTAN BERKABUT ═══
+
+    # ── 1: Cunam berdiri, damai ──
+    {
+        "bg": "forest", "scene": ("1", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 440, "hands_pocket", 1, "flat", "closed", f),
+            ui_narration(s, "CUNAM (V.O)", "Alam selalu punya cara untuk menyembuhkan luka. "
+                         "Di sini, di tengah kesunyian kabut ini... aku merasa bebas. "
+                         "Tidak ada beban, tidak ada tuntutan..."),
+        ),
+    },
+
+    # ── 2: Record scratch! ──
+    {
+        "bg": "forest", "scene": ("1", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 440, "hands_pocket", 1, "panic", "wide", f),
+            fx_sfx_text(s, "SREEEKK!!", W // 2, 120, RED),
+            ui_narration(s, "CUNAM (V.O)", "...Dan yang paling penting, DI SINI GAK ADA "
+                         "DEBT COLLECTOR YANG NANYAIN SISA UTANG 200 JUTA!!",
+                         (255, 100, 100)),
+        ),
+    },
+
+    # ── 3: Cunam jongkok stres ──
+    {
+        "bg": "forest", "scene": ("1", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 450, "squatting", 1, "frown", "normal", f),
+            ui_dialogue(s, "CUNAM", "Gila, 200 juta itu nolnya ada berapa sih? "
+                        "Kalau dibeliin cilok, kayaknya gerobak sama abang-abangnya "
+                        "bisa kebeli semua...", (100, 200, 255)),
+        ),
+    },
+
+    # ═══ SCENE 2: KAMAR CUNAM - FLASHBACK ═══
+
+    # ── 4: Kamar + whiteboard utang ──
+    {
+        "bg": "room", "scene": ("2", "INT. KAMAR CUNAM - FLASHBACK - SIANG"),
+        "draw": lambda s, f: (
+            bg_room(s, "Rp. 200.000.000"),
+            ui_narration(s, "NARATOR", "Kamar Cunam kecil tapi rapi. Di dindingnya, "
+                         "ada papan tulis dengan tulisan merah menyala..."),
+        ),
+    },
+
+    # ── 5: Pelayan warkop ──
+    {
+        "bg": "warkop", "scene": ("2", "MONTAGE - CUNAM SI PEKERJA KERAS"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 500, 440, "waiter", 1, "big_smile", "sparkle", f),
+            ui_narration(s, "NARATOR", "Cunam pakai celemek, jadi pelayan warkop, "
+                         "senyum super lebar menyapa pelanggan."),
+        ),
+    },
+
+    # ── 6: Kurir, dorong motor ──
+    {
+        "bg": "road", "scene": ("2", "MONTAGE - CUNAM SI PEKERJA KERAS"),
+        "draw": lambda s, f: (
+            draw_motorcycle(s, 380, 445),
+            draw_cunam(s, 430, 440, "pushing", -1, "smile", "closed", f),
+            fx_sweat(s, 445, 370, f),
+            ui_narration(s, "NARATOR", "Cunam jadi kurir paket, motornya mogok, "
+                         "dia dorong motor sambil tetap tersenyum dan keringetan."),
+        ),
+    },
+
+    # ── 7: Malam, hitung uang receh ──
+    {
+        "bg": "room_night", "scene": ("2", "INT. KAMAR CUNAM - MALAM"),
+        "draw": lambda s, f: (
+            bg_room_night(s, "Rp. 200.000.000"),
+            draw_cunam(s, 350, 435, "counting", 1, "flat", "normal", f),
+            fx_coin_sound(s, 400, 400, f),
+            ui_narration(s, "NARATOR", "Malam hari. Cunam mengeluarkan uang receh "
+                         "dari celengannya. Menghitungnya dengan teliti."),
+        ),
+    },
+
+    # ── 8: Update papan tulis, victory pose ──
+    {
+        "bg": "room_night", "scene": ("2", "INT. KAMAR CUNAM - MALAM"),
+        "draw": lambda s, f: (
+            bg_room_night(s, "Rp. 199.985.000"),
+            draw_cunam(s, 480, 435, "victory", -1, "big_smile", "sparkle", f),
+            fx_sfx_text(s, "krik krik krik...", W // 2, 280, (100, 200, 100)),
+            ui_dialogue(s, "CUNAM", "Sisa utang tinggal 199 juta 985 ribu! "
+                        "Maju terus, Cunam!", (100, 200, 255)),
+        ),
+    },
+
+    # ═══ SCENE 3: DEPAN MINIMARKET ═══
+
+    # ── 9: Cunam duduk, makan roti ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 200, 395, "sitting", 1, "flat", "normal", f),
+            draw_bread(s, 225, 365),
+            ui_narration(s, "NARATOR", "Cunam baru pulang kerja shift kedua. "
+                         "Duduk di kursi depan minimarket sambil makan roti tawar termurah."),
+        ),
+    },
+
+    # ── 10: Rara keluar dgn kardus ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 200, 410, "standing", 1, "surprise", "wide", f),
+            draw_rara(s, 500, 410, "carrying", -1, "smile", f),
+            ui_narration(s, "NARATOR", "Pintu minimarket terbuka. Keluar RARA, "
+                         "kasir manis yang baru selesai shift, kesulitan membawa kardus."),
+        ),
+    },
+
+    # ── 11: Cunam bantu ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 380, 410, "helping", 1, "smile", "normal", f),
+            draw_rara(s, 450, 410, "standing", -1, "big_smile", f),
+            ui_dialogue(s, "CUNAM", "Sini Ra, aku bantuin!", (100, 200, 255)),
+        ),
+    },
+
+    # ── 12: Rara ngajak festival (sparkle!) ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 350, 410, "standing", 1, "surprise", "sparkle", f),
+            draw_rara(s, 500, 410, "standing", -1, "big_smile", f),
+            fx_sparkle(s, 500, 330, f),
+            ui_dialogue(s, "RARA", "Makasih ya, Cunam. Kamu selalu baik deh. "
+                        "Oh ya, besok weekend, ada festival musik indie di alun-alun. "
+                        "Kamu... mau pergi bareng nggak?", PINK),
+        ),
+    },
+
+    # ── 13: Inner Cunam semangat ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 350, 410, "standing", 1, "big_smile", "sparkle", f),
+            draw_rara(s, 500, 410, "standing", -1, "smile", f),
+            fx_sparkle(s, 350, 330, f),
+            ui_narration(s, "CUNAM (V.O)", "Mimpi apa semalam?! Rara ngajak jalan! "
+                         "Oke Cunam, tetap tenang, jawab dengan keren!"),
+        ),
+    },
+
+    # ── 14: Lihat sepatu jebol + visi utang ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 350, 410, "standing", 1, "flat", "wide", f),
+            draw_rara(s, 500, 410, "standing", -1, "smile", f),
+            draw_broken_shoe(s, 350, 415),
+            fx_debt_vision(s, "UTANG 199 JUTA", 500, 270, f),
+            fx_coin_sound(s, 330, 380, f),
+            ui_narration(s, "NARATOR", "Cunam melirik sepatunya yang sol-nya mangap, "
+                         "dilem pakai lem korea. Bayangan utang 199 juta muncul "
+                         "berkedip-kedip. Saku celananya cuma berisi koin Rp 500..."),
+        ),
+    },
+
+    # ── 15: Efek bunga pecah ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 350, 410, "scared", 1, "panic", "wide", f),
+            draw_rara(s, 500, 410, "standing", -1, "smile", f),
+            fx_shatter(s, f),
+            ui_narration(s, "NARATOR", "Efek bunga-bunga romantis langsung HANCUR "
+                         "berkeping-keping seperti kaca pecah! Muka Cunam berubah pucat.",
+                         (255, 150, 150)),
+        ),
+    },
+
+    # ── 16: Alasan mandiin lele ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 300, 410, "scared", -1, "talking", "wide", f),
+            draw_rara(s, 500, 410, "standing", -1, "smile", f),
+            ui_dialogue(s, "CUNAM", "Eh... aduh... besok ya? Maaf banget Ra, "
+                        "b-besok aku sibuk! Iya, sibuk banget! Mau mandiin ikan lele!",
+                        (100, 200, 255)),
+        ),
+    },
+
+    # ── 17: Cunam kabur, Rara bingung ──
+    {
+        "bg": "minimarket", "scene": ("3", "EXT. DEPAN MINIMARKET - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 100, 410, "running", -1, "panic", "wide", f),
+            draw_rara(s, 500, 410, "confused", -1, "confused", f),
+            ui_dialogue(s, "RARA", "Lele... dimandiin?", PINK),
+        ),
+    },
+
+    # ═══ SCENE 4: HUTAN BERKABUT - KEMBALI KE MASA SEKARANG ═══
+
+    # ── 18: Cunam jongkok lagi ──
+    {
+        "bg": "forest", "scene": ("4", "EXT. HUTAN BERKABUT - SORE (KEMBALI KE MASA SEKARANG)"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 450, "squatting", 1, "frown", "normal", f),
+            ui_dialogue(s, "CUNAM", "Mandiin lele... alasan macam apa itu, Cunam? "
+                        "Pengecut banget.", (100, 200, 255)),
+        ),
+    },
+
+    # ── 19: Lihat foto di HP ──
+    {
+        "bg": "forest", "scene": ("4", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 440, "photo", 1, "flat", "normal", f),
+            ui_dialogue(s, "CUNAM", "Menyendiri di hutan memang paling aman. "
+                        "Nggak perlu ngeluarin uang buat jajan, nggak perlu minder "
+                        "liat orang lain pacaran. Temanku cuma pohon, kabut, sama...",
+                        (100, 200, 255)),
+        ),
+    },
+
+    # ── 20: Monyet nyuri roti! ──
+    {
+        "bg": "forest", "scene": ("4", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 480, 440, "standing", 1, "surprise", "wide", f),
+            draw_monkey(s, 560, 400, -1, True, f),
+            fx_sfx_text(s, "SRET!!", 530, 350, YELLOW),
+            ui_dialogue(s, "CUNAM", "WEY! ITU ROTI JATAH MAKAN MALAM GUE! "
+                        "SINI BALIKIN NYET!", (255, 100, 100)),
+        ),
+    },
+
+    # ── 21: Kejar monyet, tersandung ──
+    {
+        "bg": "forest", "scene": ("4", "EXT. HUTAN BERKABUT - SORE"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 400, 445, "falling", 1, "panic", "wide", f),
+            draw_monkey(s, 700, 390, 1, True, f),
+            fx_sfx_text(s, "GEDEBUK!", 400, 380, ORANGE),
+            ui_narration(s, "NARATOR", "Cunam mengejar monyet itu ke dalam kabut. "
+                         "Di tengah pelariannya, ia tersandung akar pohon dan jatuh berguling!"),
+        ),
+    },
+
+    # ── 22: Pemandangan sunset ──
+    {
+        "bg": "sunset_cliff", "scene": ("4", "HIDDEN GEM - PEMANDANGAN SUNSET"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 250, 400, "standing", 1, "surprise", "wide", f),
+            ui_narration(s, "NARATOR", "Saat ia mengangkat kepalanya, matanya membelalak. "
+                         "Di depannya terbentang pemandangan kota dengan matahari terbenam "
+                         "yang luar biasa indah, menembus kabut. Sebuah hidden gem!"),
+        ),
+    },
+
+    # ── 23: Ambil foto ──
+    {
+        "bg": "sunset_cliff", "scene": ("4", "HIDDEN GEM - PEMANDANGAN SUNSET"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 250, 400, "photo", 1, "smile", "sparkle", f),
+            ui_narration(s, "NARATOR", "Cunam mengambil HP retaknya, memposisikan kamera, "
+                         "dan memotret pemandangan itu. Sifat ceria dan jiwa hobinya kembali menyala."),
+        ),
+    },
+
+    # ── 24: V.O. refleksi (bagian 1) ──
+    {
+        "bg": "sunset_cliff", "scene": ("4", "HIDDEN GEM - PEMANDANGAN SUNSET"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 250, 400, "standing", 1, "flat", "normal", f),
+            ui_narration(s, "CUNAM (V.O)", "Keluargaku mungkin punya utang 200 juta. "
+                         "Sepatuku mungkin jebol. Dan aku mungkin pecundang soal cinta..."),
+        ),
+    },
+
+    # ── 25: V.O. refleksi (bagian 2) ──
+    {
+        "bg": "sunset_cliff", "scene": ("4", "HIDDEN GEM - PEMANDANGAN SUNSET"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 250, 400, "standing", 1, "smile", "normal", f),
+            ui_narration(s, "CUNAM (V.O)", "Tapi setidaknya... aku punya hobi yang gratis, "
+                         "dan mata yang masih bisa melihat bahwa dunia ini nggak seburuk itu."),
+        ),
+    },
+
+    # ── 26: Duduk di tebing, menikmati sunset ──
+    {
+        "bg": "sunset_cliff", "scene": ("4", "HIDDEN GEM - PEMANDANGAN SUNSET"),
+        "draw": lambda s, f: (
+            draw_cunam(s, 250, 405, "sitting_cliff", 1, "smile", "closed", f),
+            ui_dialogue(s, "CUNAM", "Besok hasil fotonya aku jual di microstock deh. "
+                        "Siapa tau laku 5 dollar. Lumayan, utang tinggal 199 juta 900 ribu... "
+                        "Semangat, Cunam!", (100, 200, 255)),
+        ),
+    },
+
+    # ── 27: BERSAMBUNG ──
+    {
+        "bg": "black", "scene": None,
+        "draw": lambda s, f: (
+            s.blit(f_ttl.render("BERSAMBUNG...", True, GOLD),
+                   (W // 2 - f_ttl.size("BERSAMBUNG...")[0] // 2, H // 2 - 30)),
+            s.blit(f_sub.render("Terima kasih sudah menonton!", True, LGRAY),
+                   (W // 2 - f_sub.size("Terima kasih sudah menonton!")[0] // 2, H // 2 + 30)),
+        ),
+    },
+]
+
+
+# ════════════════════════════════════════════════════════════════
+#  MAIN LOOP
+# ════════════════════════════════════════════════════════════════
+def main():
+    current = 0
+    total = len(BEATS)
+    frame = 0
+    running = True
+
+    while running:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                running = False
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    running = False
+                elif ev.key in (pygame.K_RIGHT, pygame.K_SPACE, pygame.K_RETURN):
+                    current = min(current + 1, total - 1)
+                elif ev.key == pygame.K_LEFT:
+                    current = max(current - 1, 0)
+
+        beat = BEATS[current]
+
+        # --- Background ---
+        bg_name = beat.get("bg", "black")
+        if bg_name == "forest":
+            bg_forest(screen, frame)
+        elif bg_name == "room":
+            bg_room(screen)
+        elif bg_name == "room_night":
+            bg_room_night(screen)
+        elif bg_name == "warkop":
+            bg_warkop(screen)
+        elif bg_name == "road":
+            bg_road(screen)
+        elif bg_name == "minimarket":
+            bg_minimarket(screen)
+        elif bg_name == "sunset_cliff":
+            bg_sunset_cliff(screen, frame)
+        else:
+            bg_black(screen)
+
+        # --- Scene header ---
+        if beat.get("scene"):
+            ui_scene_hdr(screen, beat["scene"][0], beat["scene"][1])
+
+        # --- Custom draw (characters, effects, dialogue) ---
+        if beat.get("draw"):
+            beat["draw"](screen, frame)
+
+        # --- Controls UI ---
+        ui_controls(screen, current, total)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        frame += 1
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()
