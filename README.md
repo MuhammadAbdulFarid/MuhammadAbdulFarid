@@ -5,7 +5,7 @@
 # Muhammad Abdul Farid
 ### `@cunam_aja`
 
-**Full-Stack Developer & Cybersecurity Student 🔐**
+**Full-Stack Developer & AI PROGRAMMING**
 
 ![Status](https://img.shields.io/badge/●_available-Working_from_Home-238636?style=flat&labelColor=161b22)
 ![Location](https://img.shields.io/badge/Makassar,_ID-Sulawesi_Selatan-0d1117?style=flat&labelColor=161b22&color=30363d)
